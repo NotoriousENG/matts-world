@@ -14,9 +14,16 @@ SpriteSheet spriteSheet_new(SDL_Texture *texture, int frameWidth,
 void destroySpriteSheet(SpriteSheet spriteSheet) {
   for (int i = 0; i < spriteSheet.animationCount; i++) {
     free(spriteSheet.animations[i].frames);
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                   "Freed animation set %d", i);
   }
   free(spriteSheet.animations);
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "Freed animations");
+
   SDL_DestroyTexture(spriteSheet.texture);
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "Freed texture");
 };
 
 Animator animator_new() {

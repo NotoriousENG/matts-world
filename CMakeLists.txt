@@ -28,6 +28,7 @@ add_subdirectory(lib/clm)
 add_subdirectory(lib/chroma)
 add_subdirectory(lib/sinput)
 add_subdirectory(lib/spritel)
+add_subdirectory(lib/cute)
 
 # Add source to this project's executable.
 add_executable (${PROJECT_NAME} "src/main.c" "src/scene.c" "src/resources.c" "src/entity.c" "src/metadata.c")
@@ -48,6 +49,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE sinput)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/spritel/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE spritel)
 
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/cute/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE cute)
+
 # project includes
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/include")
 
@@ -64,6 +68,13 @@ if (WIN32)
     set(SUBSYSTEM_LINKER_OPTIONS "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
     target_link_options(${PROJECT_NAME} PRIVATE ${SUBSYSTEM_LINKER_OPTIONS})
 endif()
+
+add_custom_target(copy_intermediate_assets
+    # copy all *.tmj and *.png files from list dir's intermediate/tiled to the list dir's assets/tiles, do not copy anything else
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.tmj ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.png ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
+)
+add_dependencies(${PROJECT_NAME} copy_intermediate_assets)
 
 add_custom_target(copy_assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets

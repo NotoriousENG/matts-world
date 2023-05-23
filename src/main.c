@@ -117,6 +117,9 @@ int main(int argc, char *argv[]) {
   SDL_SetRenderDrawColor(renderer, clear_color.r, clear_color.g, clear_color.b,
                          255);
 
+  // scale all rendering
+  SDL_RenderSetScale(renderer, RENDER_SCALE_X, RENDER_SCALE_Y);
+
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop, 0, resources.running);
 #else

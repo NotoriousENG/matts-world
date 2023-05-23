@@ -8,11 +8,16 @@ SpriteSheet buildJoeySheet(SDL_Texture *texture) {
   joeySheet.frameHeight = 48;
   joeySheet.animationCount = 4;
   joeySheet.animations = malloc(sizeof(Animation) * joeySheet.animationCount);
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "Allocated %d animations", joeySheet.animationCount);
   for (int i = 0; i < joeySheet.animationCount; i++) {
     joeySheet.animations[i].frameCount = 4;
     joeySheet.animations[i].frameSeconds = 0.25f;
     joeySheet.animations[i].frames =
         malloc(sizeof(SDL_Rect) * joeySheet.animations[i].frameCount);
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                   "Allocated %d frames for animation %d",
+                   joeySheet.animations[i].frameCount, i);
   }
 
   joeySheet.animations[0].frames[0] = (SDL_Rect){0, 0, 32, 48};
