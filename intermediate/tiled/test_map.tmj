@@ -41,6 +41,39 @@
          "spacing":1,
          "tilecount":48,
          "tileheight":32,
+         "tiles":[
+                {
+                 "id":30,
+                 "type":"Collision"
+                }, 
+                {
+                 "id":31,
+                 "type":"Collision"
+                }, 
+                {
+                 "id":37,
+                 "type":"Collision"
+                }, 
+                {
+                 "id":38,
+                 "type":"Collision"
+                }, 
+                {
+                 "id":39,
+                 "type":"Collision"
+                }, 
+                {
+                 "id":45,
+                 "type":"Collision"
+                }, 
+                {
+                 "id":46,
+                 "type":"Collision"
+                }, 
+                {
+                 "id":47,
+                 "type":"Collision"
+                }],
          "tilewidth":32
         }],
  "tilewidth":32,

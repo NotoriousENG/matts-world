@@ -10,3 +10,19 @@ void entity_draw(SDL_Renderer *renderer, Entity entity) {
                 entity.scale);
   }
 }
+
+SDL_Rect entity_get_rect(Entity entity) {
+  SDL_Rect rect = {
+      entity.position.x,
+      entity.position.y,
+      entity.sprite.animations[entity.animator.animation]
+              .frames[entity.animator.currentFrame]
+              .w *
+          entity.scale,
+      entity.sprite.animations[entity.animator.animation]
+              .frames[entity.animator.currentFrame]
+              .h *
+          entity.scale,
+  };
+  return rect;
+}

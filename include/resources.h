@@ -35,3 +35,5 @@ Tilemap load_tiled_map(SDL_Renderer *renderer, Resources *resources,
 void free_tiled_map(Tilemap map);
 
 void draw_tiled_map(SDL_Renderer *renderer, Tilemap map);
+
+void handle_tilemap_collisions(SDL_Rect collider, Tilemap map);

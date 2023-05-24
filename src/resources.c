@@ -108,7 +108,91 @@ void draw_tiled_map(SDL_Renderer *renderer, Tilemap map) {
       SDL_Rect dest = {(i % layer->width) * tile_width,
                        (i / layer->width) * tile_height, tile_width,
                        tile_height};
+
       SDL_RenderCopy(renderer, texture, &src, &dest);
+
+      // draw all collision tiles as green
+      cute_tiled_tile_descriptor_t *tiles = tileset->tiles;
+      while (tiles) {
+        if (tiles->tile_index == tileset_tile_id) {
+          if (strcmp(tiles->type.ptr, "Collision") == 0) {
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 128);
+            SDL_RenderFillRect(renderer, &dest);
+          }
+        }
+        tiles = tiles->next;
+      }
+    }
+
+    layer = layer->next;
+  }
+}
+
+void handle_tilemap_collisions(SDL_Rect collider, Tilemap map) {
+  // check if the collider overlaps any of the tiles corresponding dest rects
+  // for tiles who have a type of collision log the tile id and the type of
+  // collision
+
+  // loop over the map's layers
+  cute_tiled_layer_t *layer = map.map->layers;
+  while (layer) {
+    int *data = layer->data;
+    int data_count = layer->data_count;
+
+    // draw the tiles
+    for (int i = 0; i < data_count; i++) {
+      int tile = data[i];
+      if (tile == 0) {
+        continue;
+      }
+
+      // get the tileset
+      cute_tiled_tileset_t *tileset = map.map->tilesets;
+      if (tileset == NULL) {
+        continue;
+      }
+
+      // get the tileset image
+      SDL_Texture *texture = map.texture;
+      if (texture == NULL) {
+        continue;
+      }
+
+      // get the fields needed to draw the tile
+      int tile_width = tileset->tilewidth;
+      int tile_height = tileset->tileheight;
+      int tileset_columns = tileset->columns;
+      int tileset_margin = tileset->margin;
+      int tileset_spacing = tileset->spacing;
+      int tileset_tile_offset = tileset->firstgid;
+      int tileset_tile_id = tile - tileset_tile_offset;
+      int tileset_tile_x = tileset_tile_id % tileset_columns;
+      int tileset_tile_y = tileset_tile_id / tileset_columns;
+      int tileset_tile_x_px =
+          tileset_tile_x * (tile_width + tileset_spacing) + tileset_margin;
+      int tileset_tile_y_px =
+          tileset_tile_y * (tile_height + tileset_spacing) + tileset_margin;
+
+      SDL_Rect dest = {(i % layer->width) * tile_width,
+                       (i / layer->width) * tile_height, tile_width,
+                       tile_height};
+
+      // check if the collider overlaps the tile
+      if (SDL_HasIntersection(&collider, &dest)) {
+        // log the tile id and the type of collision
+        cute_tiled_tile_descriptor_t *tiles = tileset->tiles;
+        while (tiles) {
+          if (tiles->tile_index == tileset_tile_id) {
+            if (strcmp(tiles->type.ptr, "Collision") == 0) {
+              SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
+                             SDL_LOG_PRIORITY_INFO,
+                             "Collision with tile %d of type %s", tile - 1,
+                             tiles->type.ptr);
+            }
+          }
+          tiles = tiles->next;
+        }
+      }
     }
 
     layer = layer->next;

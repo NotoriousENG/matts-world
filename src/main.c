@@ -81,8 +81,8 @@ int main(int argc, char *argv[]) {
   Mix_AllocateChannels(MAX_SOUND_CHANNELS);
 
   window = SDL_CreateWindow(GAME_NAME, SDL_WINDOWPOS_UNDEFINED,
-                            SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
-                            SCREEN_HEIGHT, windowFlags);
+                            SDL_WINDOWPOS_UNDEFINED, SCALED_SCREEN_WIDTH,
+                            SCALED_SCREEN_HEIGHT, windowFlags);
 
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
 
@@ -118,7 +118,9 @@ int main(int argc, char *argv[]) {
                          255);
 
   // scale all rendering
-  SDL_RenderSetScale(renderer, RENDER_SCALE_X, RENDER_SCALE_Y);
+  SDL_RenderSetScale(renderer, RENDER_SCALE, RENDER_SCALE);
+  // set blend mode
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop, 0, resources.running);

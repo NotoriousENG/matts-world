@@ -10,8 +10,8 @@ Scene scene_new(Resources *resources) {
 
 void scene_begin(Scene *scene) {
   // Create Player
-  scene->player.position = vec2_new(SCREEN_WIDTH * 0.5f / RENDER_SCALE_X,
-                                    SCREEN_HEIGHT * 0.8f / RENDER_SCALE_Y);
+  scene->player.position =
+      vec2_new(BASE_SCREEN_WIDTH * 0.5f, BASE_SCREEN_HEIGHT * 0.8f);
   scene->player.sprite = scene->resources->joey;
   scene->player.animator = animator_new();
   scene->player.rotation = 0;
@@ -27,8 +27,9 @@ void scene_draw(SDL_Renderer *renderer, Scene *scene) {
 
 void scene_logic(Scene *scene, float delta) {
   playerLogic(scene, delta);
-
   animator_process(&scene->player.animator, scene->player.sprite, delta);
+  handle_tilemap_collisions(entity_get_rect(scene->player),
+                            scene->resources->map);
 }
 
 void playerLogic(Scene *scene, float delta) {
@@ -94,15 +95,15 @@ void playerLogic(Scene *scene, float delta) {
   // if the player is off the screen by 100 pixels, wrap them around to the
   // other side
   if (player->position.x < -WRAP_AROUND_DISTANCE) {
-    player->position.x = SCALED_SCREEN_WIDTH + WRAP_AROUND_DISTANCE;
+    player->position.x = BASE_SCREEN_WIDTH + WRAP_AROUND_DISTANCE;
   }
-  if (player->position.x > SCALED_SCREEN_WIDTH + WRAP_AROUND_DISTANCE) {
+  if (player->position.x > BASE_SCREEN_WIDTH + WRAP_AROUND_DISTANCE) {
     player->position.x = -WRAP_AROUND_DISTANCE;
   }
   if (player->position.y < -WRAP_AROUND_DISTANCE) {
-    player->position.y = SCALED_SCREEN_HEIGHT + WRAP_AROUND_DISTANCE;
+    player->position.y = BASE_SCREEN_HEIGHT + WRAP_AROUND_DISTANCE;
   }
-  if (player->position.y > SCALED_SCREEN_HEIGHT + WRAP_AROUND_DISTANCE) {
+  if (player->position.y > BASE_SCREEN_HEIGHT + WRAP_AROUND_DISTANCE) {
     player->position.y = -WRAP_AROUND_DISTANCE;
   }
 }

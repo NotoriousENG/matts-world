@@ -16,3 +16,5 @@ struct Entity {
 };
 
 void entity_draw(SDL_Renderer *renderer, Entity entity);
+
+SDL_Rect entity_get_rect(Entity entity);
