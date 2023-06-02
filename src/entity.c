@@ -24,11 +24,8 @@ void entity_draw(SDL_Renderer *renderer, Entity entity) {
 }
 
 SDL_Rect entity_get_collision_rect(Entity entity) {
-  SDL_Rect collisionRect = {
-      entity.position.x + entity.collider.offset_x,
-      entity.position.y + entity.collider.offset_y,
-      entity.collider.w,
-      entity.collider.h
-  };
+  SDL_Rect collisionRect = {entity.position.x + entity.collider.offset_x,
+                            entity.position.y + entity.collider.offset_y,
+                            entity.collider.w, entity.collider.h};
   return collisionRect;
 }

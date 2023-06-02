@@ -4,10 +4,10 @@
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
 
+#include <clm.h>
 #include <cute_tiled.h>
 #include <sinput.h>
 #include <spritel.h>
-#include <clm.h>
 
 #include "defs.h"
 

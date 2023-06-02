@@ -168,7 +168,7 @@ void handle_tilemap_collisions(Entity *entity, Tilemap map) {
                        tile_height};
 
       SDL_Rect entity_collider = entity_get_collision_rect(*entity);
-      vec2* entity_position = &entity->position;
+      vec2 *entity_position = &entity->position;
 
       // check if the collider overlaps the tile
       if (SDL_HasIntersection(&entity_collider, &dest)) {
@@ -179,9 +179,9 @@ void handle_tilemap_collisions(Entity *entity, Tilemap map) {
             if (strcmp(tiles->type.ptr, "Collision") == 0) {
               if (DEBUG_COLLISIONS) {
                 SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                             SDL_LOG_PRIORITY_INFO,
-                             "Collision with tile %d of type %s", tile - 1,
-                             tiles->type.ptr);
+                               SDL_LOG_PRIORITY_INFO,
+                               "Collision with tile %d of type %s", tile - 1,
+                               tiles->type.ptr);
               }
               // Calculate the horizontal and vertical distances between the
               // centers of the collider and dest rectangles

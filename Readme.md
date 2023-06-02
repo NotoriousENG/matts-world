@@ -1,9 +1,5 @@
-# Tink's World
-This is a game about my cats. You play as Tink who wants to eat more wet food than Anya. 
-
-If you beat Anya you will proceed to the next level where the speed increases. Try to get as far as you can!
-
-The Cat Throne awaits ...
+# Matt's World
+This is a top down adventure game.
 
 # Controls
 Use WASD or the Arrow Keys to move
