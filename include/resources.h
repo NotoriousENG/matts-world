@@ -7,8 +7,11 @@
 #include <cute_tiled.h>
 #include <sinput.h>
 #include <spritel.h>
+#include <clm.h>
 
 #include "defs.h"
+
+typedef struct Entity Entity; // forward declaration
 
 typedef struct Tilemap Tilemap;
 struct Tilemap {
@@ -36,4 +39,4 @@ void free_tiled_map(Tilemap map);
 
 void draw_tiled_map(SDL_Renderer *renderer, Tilemap map);
 
-void handle_tilemap_collisions(SDL_Rect collider, Tilemap map);
+void handle_tilemap_collisions(Entity *entity, Tilemap map);

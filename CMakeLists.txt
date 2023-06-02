@@ -29,6 +29,7 @@ add_subdirectory(lib/chroma)
 add_subdirectory(lib/sinput)
 add_subdirectory(lib/spritel)
 add_subdirectory(lib/cute)
+add_subdirectory(lib/oof)
 
 # Add source to this project's executable.
 add_executable (${PROJECT_NAME} "src/main.c" "src/scene.c" "src/resources.c" "src/entity.c" "src/metadata.c")
@@ -51,6 +52,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE spritel)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/cute/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE cute)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/oof/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE oof)
 
 # project includes
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/include")

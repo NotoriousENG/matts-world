@@ -13,9 +13,12 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 146.25,
-                "y": 173.25
+                "x": 73.25,
+                "y": 172.75
             }
+        },
+        "test_map.tmj#tmw_desert_spacing": {
+            "scaleInDock": 1
         },
         "tmw_desert_spacing.tsx": {
             "scaleInDock": 1,

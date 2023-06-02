@@ -18,6 +18,7 @@ void scene_begin(Scene *scene) {
   scene->player.scale = 1;
   scene->player.visible = 1;
   scene->playerSpeed = PLAYER_SPEED;
+  scene->player.collider = collider_new(SOLID, 32, 32, 0, 16);
 }
 
 void scene_draw(SDL_Renderer *renderer, Scene *scene) {
@@ -28,8 +29,7 @@ void scene_draw(SDL_Renderer *renderer, Scene *scene) {
 void scene_logic(Scene *scene, float delta) {
   playerLogic(scene, delta);
   animator_process(&scene->player.animator, scene->player.sprite, delta);
-  handle_tilemap_collisions(entity_get_rect(scene->player),
-                            scene->resources->map);
+  handle_tilemap_collisions(&scene->player, scene->resources->map);
 }
 
 void playerLogic(Scene *scene, float delta) {
