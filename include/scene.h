@@ -9,6 +9,7 @@ typedef struct {
   Entity player;
   Entity npc;
   float playerSpeed;
+  SDL_Rect playerInteractionRect;
   Resources *resources;
   DialogueManager dialogueManager;
   Dialogue joeyDialogue;

@@ -50,6 +50,12 @@ void scene_draw(SDL_Renderer *renderer, Scene *scene) {
   entity_draw(renderer, scene->npc);
   entity_draw(renderer, scene->player);
 
+  if (DEBUG_COLLISIONS) {
+    // draw the player interaction area
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+    SDL_RenderDrawRect(renderer, &scene->playerInteractionRect);
+  }
+
   dialogueManager_draw(renderer, &scene->dialogueManager,
                        scene->resources->font);
 }
@@ -153,30 +159,38 @@ void playerLogic(Scene *scene, float delta) {
 
   // create a player trigger w/h pixels in front of the player (based on the dir
   // (most influential direction))
-  vec2 trigger_offset = player->position;
+  vec2 trigger_position =
+      vec2_new(player->position.x + player->collider.offset_x,
+               player->position.y + player->collider.offset_y);
   switch (dir) {
   case 0:
-    trigger_offset.y += player->collider.h;
+    trigger_position.y += player->collider.h;
     break;
   case 1:
-    trigger_offset.x -= player->collider.w;
+    trigger_position.x -= player->collider.w;
     break;
   case 2:
-    trigger_offset.x += player->collider.w;
+    trigger_position.x += player->collider.w;
     break;
   case 3:
-    trigger_offset.y -= player->collider.h;
+    trigger_position.y -= player->collider.h;
     break;
   default: // do nothing
     break;
   }
 
-  trigger_offset = vec2_add(
-      trigger_offset, (vec2){player->collider.w / 2, player->collider.h / 2});
+  scene->playerInteractionRect =
+      (SDL_Rect){trigger_position.x, trigger_position.y, 32, 32};
 
   // check if the player is in range of the npc
-  if (vec2_distance(trigger_offset, scene->npc.position) <
-      scene->npc.collider.w) {
+  // get the collision rect for the npc
+  SDL_Rect npc_rect = (SDL_Rect){
+      scene->npc.position.x + scene->npc.collider.offset_x,
+      scene->npc.position.y + scene->npc.collider.offset_y,
+      scene->npc.collider.w,
+      scene->npc.collider.h,
+  };
+  if (SDL_HasIntersection(&scene->playerInteractionRect, &npc_rect)) {
     // if the player presses the interact key, start the dialogue
     if (scene->resources->keyboard[SDL_SCANCODE_SPACE] == JUST_PRESSED &&
         !scene->dialogueManager.dialogueActive) {
