@@ -5,9 +5,10 @@ Scene scene_new(Resources *resources) {
   Scene scene;
   memset(&scene, 0, sizeof(Scene));
   scene.resources = resources;
-  scene.joeyDialogue.dialogueLength = 3;
-  scene.joeyDialogue.dialogue =
-      malloc(sizeof(char *) * scene.joeyDialogue.dialogueLength);
+  scene.joeyDialogue = (Dialogue){
+      .dialogueLength = 3,
+      .dialogue = malloc(sizeof(char *) * scene.joeyDialogue.dialogueLength),
+  };
   scene.joeyDialogue.dialogue[0] = "Hello, mamafackas!";
   scene.joeyDialogue.dialogue[1] =
       "Now it is time to tell you that Revali has died!";
@@ -41,7 +42,6 @@ void scene_begin(Scene *scene) {
   scene->npc.collider = collider_new(SOLID, 32, 32, 0, 16);
 
   scene->dialogueManager = dialogueManager_set_dialogue(scene->joeyDialogue);
-  dialogueManager_start(&scene->dialogueManager);
 }
 
 void scene_draw(SDL_Renderer *renderer, Scene *scene) {
@@ -55,12 +55,17 @@ void scene_draw(SDL_Renderer *renderer, Scene *scene) {
 }
 
 void scene_logic(Scene *scene, float delta) {
-  if (!scene->dialogueManager.dialogueActive) {
-    playerLogic(scene, delta);
-  }
+
+  int dialogueActive =
+      scene->dialogueManager
+          .dialogueActive; // dialogueActive for this duration of this frame
 
   dialogueManager_logic(&scene->dialogueManager, delta,
                         scene->resources->keyboard);
+
+  if (!dialogueActive) {
+    playerLogic(scene, delta);
+  }
 }
 
 void playerLogic(Scene *scene, float delta) {
@@ -145,4 +150,54 @@ void playerLogic(Scene *scene, float delta) {
 
   handle_tilemap_collisions(&scene->player, scene->resources->map);
   handle_entity_collisions(&scene->player, &scene->npc);
+
+  // create a player trigger w/h pixels in front of the player (based on the dir
+  // (most influential direction))
+  vec2 trigger_offset = player->position;
+  switch (dir) {
+  case 0:
+    trigger_offset.y += player->collider.h;
+    break;
+  case 1:
+    trigger_offset.x -= player->collider.w;
+    break;
+  case 2:
+    trigger_offset.x += player->collider.w;
+    break;
+  case 3:
+    trigger_offset.y -= player->collider.h;
+    break;
+  default: // do nothing
+    break;
+  }
+
+  trigger_offset = vec2_add(
+      trigger_offset, (vec2){player->collider.w / 2, player->collider.h / 2});
+
+  // check if the player is in range of the npc
+  if (vec2_distance(trigger_offset, scene->npc.position) <
+      scene->npc.collider.w) {
+    // if the player presses the interact key, start the dialogue
+    if (scene->resources->keyboard[SDL_SCANCODE_SPACE] == JUST_PRESSED &&
+        !scene->dialogueManager.dialogueActive) {
+      dialogueManager_start(&scene->dialogueManager);
+      // set the npc to face the player this is the oppossite of the player dir
+      switch (dir) {
+      case 0:
+        scene->npc.animator.animation = 3;
+        break;
+      case 1:
+        scene->npc.animator.animation = 2;
+        break;
+      case 2:
+        scene->npc.animator.animation = 1;
+        break;
+      case 3:
+        scene->npc.animator.animation = 0;
+        break;
+      default:
+        break;
+      }
+    }
+  }
 }
