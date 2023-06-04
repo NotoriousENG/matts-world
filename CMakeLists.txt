@@ -32,7 +32,7 @@ add_subdirectory(lib/cute)
 add_subdirectory(lib/oof)
 
 # Add source to this project's executable.
-add_executable (${PROJECT_NAME} "src/main.c" "src/scene.c" "src/resources.c" "src/entity.c" "src/metadata.c")
+add_executable (${PROJECT_NAME} "src/main.c" "src/scene.c" "src/resources.c" "src/entity.c" "src/metadata.c" "src/dialogue.c")
 
 # define GAME_NAME as Matt's World
 target_compile_definitions(${PROJECT_NAME} PRIVATE GAME_NAME="Matt's World")

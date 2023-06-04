@@ -3,8 +3,11 @@
 
 #define MAX_KEYBOARD_KEYS 350 // world for now
 
-void doKeyUp(int *keyboard, SDL_KeyboardEvent *event);
+typedef uint8_t KeyState;
+enum {
+  NOT_PRESSED = 0,
+  JUST_PRESSED = 1,
+  PRESSED = 2,
+};
 
-void doKeyDown(int *keyboard, SDL_KeyboardEvent *event);
-
-void doInput(int *keyboard);
+void doInput(KeyState *keyboard);

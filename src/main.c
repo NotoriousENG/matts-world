@@ -23,6 +23,9 @@ static float delta = 0;
 static color_rgb clear_color = {125, 255, 134};
 
 void cleanup() {
+
+  scene_free(&scene);
+
   free_resources(resources);
 
   TTF_Quit();
@@ -47,8 +50,8 @@ void main_loop() {
 
   doInput(resources.keyboard);
 
-  scene_draw(renderer, &scene);
   scene_logic(&scene, delta);
+  scene_draw(renderer, &scene);
 
   SDL_RenderPresent(renderer);
 }

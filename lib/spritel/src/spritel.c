@@ -35,7 +35,13 @@ Animator animator_new() {
   return animator;
 }
 
-void animator_process(Animator *animator, SpriteSheet sprite, float delta) {
+void animator_process(Animator *animator, SpriteSheet sprite, float delta,
+                      int stopLoopingOnIdleFrames) {
+  if (stopLoopingOnIdleFrames &&
+      (animator->currentFrame == 0 ||
+       animator->currentFrame == 2)) { // @TODO tag for idle frames
+    return;
+  }
   animator->time += delta;
   Animation animation = sprite.animations[animator->animation];
   if (animator->time > animation.frameSeconds) {

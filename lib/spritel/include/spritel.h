@@ -34,7 +34,8 @@ void destroySpriteSheet(SpriteSheet spriteSheet);
 
 Animator animator_new();
 
-void animator_process(Animator *animator, SpriteSheet sprite, float delta);
+void animator_process(Animator *animator, SpriteSheet sprite, float delta,
+                      int stopLoopingOnIdleFrames);
 
 SDL_Texture *loadTexture(SDL_Renderer *renderer, char *filename);
 

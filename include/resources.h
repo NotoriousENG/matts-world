@@ -21,9 +21,10 @@ struct Tilemap {
 
 typedef struct Resources Resources;
 struct Resources {
+  TTF_Font *font;
   SpriteSheet joey;
   Tilemap map;
-  int keyboard[MAX_KEYBOARD_KEYS];
+  KeyState keyboard[MAX_KEYBOARD_KEYS];
   SDL_Joystick *joystick;
   int running;
 };
@@ -31,6 +32,11 @@ struct Resources {
 Resources load_resources(SDL_Renderer *renderer);
 
 void free_resources(Resources resources);
+
+TTF_Font *loadFont(char *filename, int size);
+
+// draw text with SDL_ttf with specified font
+void drawText(SDL_Renderer *renderer, char *text, int x, int y, TTF_Font *font);
 
 Tilemap load_tiled_map(SDL_Renderer *renderer, Resources *resources,
                        const char *path);

@@ -7,6 +7,7 @@
 Resources load_resources(SDL_Renderer *renderer) {
   Resources resources;
   memset(&resources, 0, sizeof(Resources));
+  resources.font = loadFont("assets/Pokemon.ttf", 32);
   resources.joey = buildJoeySheet(loadTexture(renderer, "assets/joey.png"));
   resources.map =
       load_tiled_map(renderer, &resources, "assets/tiles/test_map.tmj");
@@ -14,13 +15,43 @@ Resources load_resources(SDL_Renderer *renderer) {
   return resources;
 }
 
+TTF_Font *loadFont(char *filename, int size) {
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "Loading %s", filename);
+  TTF_Font *font = TTF_OpenFont(filename, size);
+  if (font == NULL) {
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
+                   "Failed to load font: %s", TTF_GetError());
+    exit(1);
+  }
+  return font;
+}
+
 void free_resources(Resources resources) {
+  TTF_CloseFont(resources.font);
   destroySpriteSheet(resources.joey);
   free_tiled_map(resources.map);
 
   if (resources.joystick != NULL) {
     SDL_JoystickClose(resources.joystick);
   }
+}
+
+void drawText(SDL_Renderer *renderer, char *text, int x, int y,
+              TTF_Font *font) {
+  SDL_Color color = {0, 0, 0};
+  int wrapLength = BASE_SCREEN_WIDTH;
+  SDL_Surface *surface =
+      TTF_RenderText_Solid_Wrapped(font, text, color, wrapLength);
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_FreeSurface(surface);
+
+  SDL_Rect dest;
+  dest.x = x;
+  dest.y = y;
+  SDL_QueryTexture(texture, NULL, NULL, &dest.w, &dest.h);
+  SDL_RenderCopy(renderer, texture, NULL, &dest);
+  SDL_DestroyTexture(texture);
 }
 
 Tilemap load_tiled_map(SDL_Renderer *renderer, Resources *resources,

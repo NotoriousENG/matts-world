@@ -5,8 +5,18 @@ Scene scene_new(Resources *resources) {
   Scene scene;
   memset(&scene, 0, sizeof(Scene));
   scene.resources = resources;
+  scene.joeyDialogue.dialogueLength = 3;
+  scene.joeyDialogue.dialogue =
+      malloc(sizeof(char *) * scene.joeyDialogue.dialogueLength);
+  scene.joeyDialogue.dialogue[0] = "Hello, mamafackas!";
+  scene.joeyDialogue.dialogue[1] =
+      "Now it is time to tell you that Revali has died!";
+  scene.joeyDialogue.dialogue[2] = "We are back in the past defeating Ganon";
+
   return scene;
 }
+
+void scene_free(Scene *scene) { free(scene->joeyDialogue.dialogue); }
 
 void scene_begin(Scene *scene) {
   // Create Player
@@ -19,17 +29,38 @@ void scene_begin(Scene *scene) {
   scene->player.visible = 1;
   scene->playerSpeed = PLAYER_SPEED;
   scene->player.collider = collider_new(SOLID, 32, 32, 0, 16);
+
+  // Create NPC
+  scene->npc.position =
+      vec2_new(BASE_SCREEN_WIDTH * 0.5f, BASE_SCREEN_HEIGHT * 0.6f);
+  scene->npc.sprite = scene->resources->joey;
+  scene->npc.animator = animator_new();
+  scene->npc.rotation = 0;
+  scene->npc.scale = 1;
+  scene->npc.visible = 1;
+  scene->npc.collider = collider_new(SOLID, 32, 32, 0, 16);
+
+  scene->dialogueManager = dialogueManager_set_dialogue(scene->joeyDialogue);
+  dialogueManager_start(&scene->dialogueManager);
 }
 
 void scene_draw(SDL_Renderer *renderer, Scene *scene) {
   draw_tiled_map(renderer, scene->resources->map);
+
+  entity_draw(renderer, scene->npc);
   entity_draw(renderer, scene->player);
+
+  dialogueManager_draw(renderer, &scene->dialogueManager,
+                       scene->resources->font);
 }
 
 void scene_logic(Scene *scene, float delta) {
-  playerLogic(scene, delta);
-  animator_process(&scene->player.animator, scene->player.sprite, delta);
-  handle_tilemap_collisions(&scene->player, scene->resources->map);
+  if (!scene->dialogueManager.dialogueActive) {
+    playerLogic(scene, delta);
+  }
+
+  dialogueManager_logic(&scene->dialogueManager, delta,
+                        scene->resources->keyboard);
 }
 
 void playerLogic(Scene *scene, float delta) {
@@ -83,9 +114,14 @@ void playerLogic(Scene *scene, float delta) {
   }
   scene->player.animator.animation = dir;
 
-  if (vec2_length(inputDir) > 0) {
+  int isMoving = vec2_length(inputDir) > 0;
+
+  if (isMoving) {
     inputDir = vec2_normalize(inputDir);
   }
+
+  animator_process(&scene->player.animator, scene->player.sprite, delta,
+                   !isMoving);
 
   Entity *player = &scene->player;
 
@@ -106,4 +142,7 @@ void playerLogic(Scene *scene, float delta) {
   if (player->position.y > BASE_SCREEN_HEIGHT + WRAP_AROUND_DISTANCE) {
     player->position.y = -WRAP_AROUND_DISTANCE;
   }
+
+  handle_tilemap_collisions(&scene->player, scene->resources->map);
+  handle_entity_collisions(&scene->player, &scene->npc);
 }
