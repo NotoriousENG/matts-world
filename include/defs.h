@@ -14,7 +14,8 @@
 
 #define WRAP_AROUND_DISTANCE 50
 
-#define DEBUG_COLLISIONS 1
+// #define DEBUG_COLLISIONS 1 // set to 0 for release builds do this in
+// CMakeLists.txt
 
 #ifndef GAME_NAME
 #define GAME_NAME "Add Game Name to CMakeLists.txt"

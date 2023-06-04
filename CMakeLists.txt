@@ -34,6 +34,12 @@ add_subdirectory(lib/oof)
 # Add source to this project's executable.
 add_executable (${PROJECT_NAME} "src/main.c" "src/scene.c" "src/resources.c" "src/entity.c" "src/metadata.c" "src/dialogue.c")
 
+# if this is a release build #define DEBUG_COLLISIONS 1
+if (NOT CMAKE_BUILD_TYPE MATCHES Release) # append AND false to disable in debug
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG_COLLISIONS=1)
+endif()
+
+
 # define GAME_NAME as Matt's World
 target_compile_definitions(${PROJECT_NAME} PRIVATE GAME_NAME="Matt's World")
 

@@ -50,11 +50,13 @@ void scene_draw(SDL_Renderer *renderer, Scene *scene) {
   entity_draw(renderer, scene->npc);
   entity_draw(renderer, scene->player);
 
-  if (DEBUG_COLLISIONS) {
+#ifdef DEBUG_COLLISIONS
+  {
     // draw the player interaction area
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
     SDL_RenderDrawRect(renderer, &scene->playerInteractionRect);
   }
+#endif
 
   dialogueManager_draw(renderer, &scene->dialogueManager,
                        scene->resources->font);

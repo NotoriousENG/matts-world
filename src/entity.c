@@ -10,7 +10,8 @@ void entity_draw(SDL_Renderer *renderer, Entity entity) {
                 entity.scale);
   }
 
-  if (DEBUG_COLLISIONS) {
+#ifdef DEBUG_COLLISIONS
+  {
     // draw the collider as a red box over the texture
     SDL_Rect collisionRect = entity_get_collision_rect(entity);
     // set the color to red for SOLID, else BLUE
@@ -21,6 +22,7 @@ void entity_draw(SDL_Renderer *renderer, Entity entity) {
     }
     SDL_RenderDrawRect(renderer, &collisionRect);
   }
+#endif
 }
 
 SDL_Rect entity_get_collision_rect(Entity entity) {
@@ -53,11 +55,13 @@ void handle_entity_collisions(Entity *entity, Entity *other) {
         int overlap_x = min_dist_x - abs(h_dist);
         int overlap_y = min_dist_y - abs(v_dist);
 
-        // Log the collision
-        if (DEBUG_COLLISIONS) {
+// Log the collision
+#ifdef DEBUG_COLLISIONS
+        {
           SDL_Log("Collision! overlap_x: %d, overlap_y: %d", overlap_x,
                   overlap_y);
         }
+#endif
 
         // Resolve the collision based on the direction of overlap
         if (overlap_x < overlap_y) {
