@@ -3,29 +3,26 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-typedef struct Animation Animation;
-struct Animation {
+typedef struct Animation {
   SDL_Rect *frames;
   int frameCount;
   float frameSeconds;
-};
+} Animation;
 
-typedef struct SpriteSheet SpriteSheet;
-struct SpriteSheet {
+typedef struct SpriteSheet {
   SDL_Texture *texture;
   Animation *animations;
   int animationCount;
   int frameWidth;
   int frameHeight;
   float frameSeconds;
-};
+} SpriteSheet;
 
-typedef struct Animator Animator;
-struct Animator {
+typedef struct Animator {
   int animation;
   float time;
   int currentFrame;
-};
+} Animator;
 
 SpriteSheet spriteSheet_new(SDL_Texture *texture, int frameWidth,
                             int frameHeight);

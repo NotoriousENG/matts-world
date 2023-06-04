@@ -45,19 +45,17 @@ void scene_begin(Scene *scene) {
 }
 
 void scene_draw(SDL_Renderer *renderer, Scene *scene) {
-  draw_tiled_map(renderer, scene->resources->map);
+  draw_tiled_map(renderer, scene->resources->map,
+                 scene->resources->debug.collisions);
 
-  entity_draw(renderer, scene->npc);
-  entity_draw(renderer, scene->player);
+  entity_draw(renderer, scene->npc, scene->resources->debug.collisions);
+  entity_draw(renderer, scene->player, scene->resources->debug.collisions);
 
-#ifdef DEBUG_COLLISIONS
-  {
+  if (scene->resources->debug.collisions) {
     // draw the player interaction area
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
     SDL_RenderDrawRect(renderer, &scene->playerInteractionRect);
   }
-#endif
-
   dialogueManager_draw(renderer, &scene->dialogueManager,
                        scene->resources->font);
 }
@@ -73,6 +71,12 @@ void scene_logic(Scene *scene, float delta) {
 
   if (!dialogueActive) {
     playerLogic(scene, delta);
+  }
+
+  // if 1 is pressed, toggle debug mode
+  if (scene->resources->keyboard[SDL_SCANCODE_1] == JUST_PRESSED) {
+    scene->resources->debug.collisions =
+        !scene->resources->debug.collisions; // toggle debug mode
   }
 }
 

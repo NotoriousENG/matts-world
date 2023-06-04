@@ -13,21 +13,24 @@
 
 typedef struct Entity Entity; // forward declaration
 
-typedef struct Tilemap Tilemap;
-struct Tilemap {
+typedef struct Debug {
+  int collisions;
+} Debug;
+
+typedef struct Tilemap {
   cute_tiled_map_t *map;
   SDL_Texture *texture; // this should be managed somewhere else
-};
+} Tilemap;
 
-typedef struct Resources Resources;
-struct Resources {
+typedef struct Resources {
   TTF_Font *font;
   SpriteSheet joey;
   Tilemap map;
   KeyState keyboard[MAX_KEYBOARD_KEYS];
   SDL_Joystick *joystick;
   int running;
-};
+  Debug debug;
+} Resources;
 
 Resources load_resources(SDL_Renderer *renderer);
 
@@ -43,6 +46,6 @@ Tilemap load_tiled_map(SDL_Renderer *renderer, Resources *resources,
 
 void free_tiled_map(Tilemap map);
 
-void draw_tiled_map(SDL_Renderer *renderer, Tilemap map);
+void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, int debug_collisions);
 
 void handle_tilemap_collisions(Entity *entity, Tilemap map);

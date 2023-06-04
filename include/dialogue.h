@@ -5,18 +5,16 @@
 
 typedef uint8_t KeyState;
 
-typedef struct Dialogue Dialogue;
-struct Dialogue {
+typedef struct Dialogue {
   int dialogueLength;
   char **dialogue;
-};
+} Dialogue;
 
-typedef struct DialogueManager DialogueManager;
-struct DialogueManager {
+typedef struct DialogueManager {
   Dialogue currentDialogue;
   int currentDialogueIndex;
   int dialogueActive;
-};
+} DialogueManager;
 
 DialogueManager dialogueManager_set_dialogue(Dialogue dialogue);
 

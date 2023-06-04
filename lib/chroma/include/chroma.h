@@ -1,20 +1,16 @@
 #pragma once
 
-typedef struct color_rgb color_rgb;
-
-struct color_rgb {
+typedef struct color_rgb {
   float r;
   float g;
   float b;
-};
+} color_rgb;
 
-typedef struct color_hsv color_hsv;
-
-struct color_hsv {
+typedef struct color_hsv {
   float h;
   float s;
   float v;
-};
+} color_hsv;
 
 color_rgb hue_shift(color_rgb color, float delta);
 

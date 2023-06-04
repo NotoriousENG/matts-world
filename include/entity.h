@@ -6,8 +6,7 @@
 
 #include "resources.h"
 
-typedef struct Entity Entity;
-struct Entity {
+typedef struct Entity {
   vec2 position;
   float rotation;
   float scale;
@@ -15,9 +14,9 @@ struct Entity {
   Animator animator;
   int visible;
   Collider collider;
-};
+} Entity;
 
-void entity_draw(SDL_Renderer *renderer, Entity entity);
+void entity_draw(SDL_Renderer *renderer, Entity entity, int debug_collisions);
 
 SDL_Rect entity_get_collision_rect(Entity entity);
 

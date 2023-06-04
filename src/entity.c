@@ -1,7 +1,7 @@
 #include "entity.h"
 #include "spritel.h"
 
-void entity_draw(SDL_Renderer *renderer, Entity entity) {
+void entity_draw(SDL_Renderer *renderer, Entity entity, int debug_collisions) {
   if (entity.visible) {
     drawTexture(renderer, entity.sprite.texture,
                 &entity.sprite.animations[entity.animator.animation]
@@ -10,8 +10,7 @@ void entity_draw(SDL_Renderer *renderer, Entity entity) {
                 entity.scale);
   }
 
-#ifdef DEBUG_COLLISIONS
-  {
+  if (debug_collisions) {
     // draw the collider as a red box over the texture
     SDL_Rect collisionRect = entity_get_collision_rect(entity);
     // set the color to red for SOLID, else BLUE
@@ -22,7 +21,6 @@ void entity_draw(SDL_Renderer *renderer, Entity entity) {
     }
     SDL_RenderDrawRect(renderer, &collisionRect);
   }
-#endif
 }
 
 SDL_Rect entity_get_collision_rect(Entity entity) {
@@ -54,14 +52,6 @@ void handle_entity_collisions(Entity *entity, Entity *other) {
         // Collision detected
         int overlap_x = min_dist_x - abs(h_dist);
         int overlap_y = min_dist_y - abs(v_dist);
-
-// Log the collision
-#ifdef DEBUG_COLLISIONS
-        {
-          SDL_Log("Collision! overlap_x: %d, overlap_y: %d", overlap_x,
-                  overlap_y);
-        }
-#endif
 
         // Resolve the collision based on the direction of overlap
         if (overlap_x < overlap_y) {

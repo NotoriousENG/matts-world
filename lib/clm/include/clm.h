@@ -1,11 +1,9 @@
 #pragma once
 
-typedef struct vec2 vec2;
-
-struct vec2 {
+typedef struct vec2 {
   float x;
   float y;
-};
+} vec2;
 
 // Create a new vector
 vec2 vec2_new(float x, float y);

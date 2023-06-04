@@ -5,7 +5,7 @@
 #include "entity.h"
 #include "resources.h"
 
-typedef struct {
+typedef struct Scene {
   Entity player;
   Entity npc;
   float playerSpeed;

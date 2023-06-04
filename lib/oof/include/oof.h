@@ -3,7 +3,7 @@
 typedef enum CollisionType CollisionType;
 enum CollisionType { TRIGGER, SOLID };
 
-typedef struct Collider {
+typedef struct {
   CollisionType type;
   int w;
   int h;

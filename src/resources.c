@@ -93,7 +93,7 @@ void free_tiled_map(Tilemap map) {
                  "Freed map texture");
 }
 
-void draw_tiled_map(SDL_Renderer *renderer, Tilemap map) {
+void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, int debug_collisions) {
   // loop over the map's layers
   cute_tiled_layer_t *layer = map.map->layers;
   while (layer) {
@@ -143,8 +143,7 @@ void draw_tiled_map(SDL_Renderer *renderer, Tilemap map) {
 
       SDL_RenderCopy(renderer, texture, &src, &dest);
 
-#ifdef DEBUG_COLLISIONS
-      {
+      if (debug_collisions) {
         // draw all collision tiles as green
         cute_tiled_tile_descriptor_t *tiles = tileset->tiles;
         while (tiles) {
@@ -157,7 +156,6 @@ void draw_tiled_map(SDL_Renderer *renderer, Tilemap map) {
           tiles = tiles->next;
         }
       }
-#endif
     }
 
     layer = layer->next;
@@ -210,14 +208,6 @@ void handle_tilemap_collisions(Entity *entity, Tilemap map) {
         while (tiles) {
           if (tiles->tile_index == tileset_tile_id) {
             if (strcmp(tiles->type.ptr, "Collision") == 0) {
-#ifdef DEBUG_COLLISIONS
-              {
-                SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                               SDL_LOG_PRIORITY_INFO,
-                               "Collision with tile %d of type %s", tile - 1,
-                               tiles->type.ptr);
-              }
-#endif
               // Calculate the horizontal and vertical distances between the
               // centers of the collider and dest rectangles
               int centerColliderX = entity_collider.x + entity_collider.w / 2;
