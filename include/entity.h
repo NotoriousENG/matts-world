@@ -16,7 +16,8 @@ typedef struct Entity {
   Collider collider;
 } Entity;
 
-void entity_draw(SDL_Renderer *renderer, Entity entity, int debug_collisions);
+void entity_draw(SDL_Renderer *renderer, Entity entity, Camera camera,
+                 int debug_collisions);
 
 SDL_Rect entity_get_collision_rect(Entity entity);
 

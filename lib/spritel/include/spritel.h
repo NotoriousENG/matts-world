@@ -16,6 +16,7 @@ typedef struct SpriteSheet {
   int frameWidth;
   int frameHeight;
   float frameSeconds;
+  uint32_t loadedAt;
 } SpriteSheet;
 
 typedef struct Animator {
@@ -41,3 +42,5 @@ void destroyTexture(SDL_Texture *texture);
 void drawTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                  const SDL_Rect *srcrect, int x, int y, float rotation,
                  float scale);
+
+time_t GetFileModificationTime(const char *filename);

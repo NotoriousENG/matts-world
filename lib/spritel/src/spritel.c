@@ -1,4 +1,12 @@
 #include "spritel.h"
+#include <time.h>
+#include <unistd.h>
+
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <sys/stat.h>
+#endif
 
 SpriteSheet spriteSheet_new(SDL_Texture *texture, int frameWidth,
                             int frameHeight) {
@@ -8,6 +16,7 @@ SpriteSheet spriteSheet_new(SDL_Texture *texture, int frameWidth,
   spriteSheet.frameWidth = frameWidth;
   spriteSheet.frameHeight = frameHeight;
   spriteSheet.animationCount = 1;
+  spriteSheet.loadedAt = SDL_GetTicks();
   return spriteSheet;
 }
 
@@ -35,6 +44,24 @@ Animator animator_new() {
   return animator;
 }
 
+time_t GetFileModificationTime(const char *filename) {
+#ifdef WIN32
+  struct _stat attrib;
+  int result = _stat(filename, &attrib);
+  if (result == 0) {
+    return attrib.st_mtime;
+  }
+  return -1;
+#else
+  struct stat attrib;
+  int result = stat(filename, &attrib);
+  if (result == 0) {
+    return attrib.st_mtime;
+  }
+  return -1;
+#endif
+}
+
 void animator_process(Animator *animator, SpriteSheet sprite, float delta,
                       int stopLoopingOnIdleFrames) {
   if (stopLoopingOnIdleFrames &&
@@ -56,6 +83,19 @@ void animator_process(Animator *animator, SpriteSheet sprite, float delta,
 SDL_Texture *loadTexture(SDL_Renderer *renderer, char *filename) {
   SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
                  "Loading %s", filename);
+
+  time_t currentModifiedTime = GetFileModificationTime(filename);
+  if (currentModifiedTime == -1) {
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR,
+                   "Failed to retrieve file modification time for %s",
+                   filename);
+    exit(1);
+  }
+  // log the time dd/mm/yyyy hh:mm:ss
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "%s modification time: %s", filename,
+                 ctime(&currentModifiedTime));
+
   SDL_Texture *texture = IMG_LoadTexture(renderer, filename);
 
   if (renderer == NULL) {

@@ -22,6 +22,10 @@ typedef struct Tilemap {
   SDL_Texture *texture; // this should be managed somewhere else
 } Tilemap;
 
+typedef struct Camera {
+  vec2 position;
+} Camera;
+
 typedef struct Resources {
   TTF_Font *font;
   SpriteSheet joey;
@@ -30,6 +34,7 @@ typedef struct Resources {
   SDL_Joystick *joystick;
   int running;
   Debug debug;
+  Camera mainCamera;
 } Resources;
 
 Resources load_resources(SDL_Renderer *renderer);
@@ -46,6 +51,7 @@ Tilemap load_tiled_map(SDL_Renderer *renderer, Resources *resources,
 
 void free_tiled_map(Tilemap map);
 
-void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, int debug_collisions);
+void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, Camera camera,
+                    int debug_collisions);
 
 void handle_tilemap_collisions(Entity *entity, Tilemap map);

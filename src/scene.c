@@ -45,16 +45,21 @@ void scene_begin(Scene *scene) {
 }
 
 void scene_draw(SDL_Renderer *renderer, Scene *scene) {
-  draw_tiled_map(renderer, scene->resources->map,
+  draw_tiled_map(renderer, scene->resources->map, scene->resources->mainCamera,
                  scene->resources->debug.collisions);
 
-  entity_draw(renderer, scene->npc, scene->resources->debug.collisions);
-  entity_draw(renderer, scene->player, scene->resources->debug.collisions);
+  entity_draw(renderer, scene->npc, scene->resources->mainCamera,
+              scene->resources->debug.collisions);
+  entity_draw(renderer, scene->player, scene->resources->mainCamera,
+              scene->resources->debug.collisions);
 
   if (scene->resources->debug.collisions) {
     // draw the player interaction area
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-    SDL_RenderDrawRect(renderer, &scene->playerInteractionRect);
+    SDL_Rect playerInteractionRect = scene->playerInteractionRect;
+    playerInteractionRect.x -= scene->resources->mainCamera.position.x;
+    playerInteractionRect.y -= scene->resources->mainCamera.position.y;
+    SDL_RenderDrawRect(renderer, &playerInteractionRect);
   }
   dialogueManager_draw(renderer, &scene->dialogueManager,
                        scene->resources->font);
@@ -145,23 +150,14 @@ void playerLogic(Scene *scene, float delta) {
   player->position = vec2_add(player->position,
                               vec2_scale(inputDir, scene->playerSpeed * delta));
 
-  // if the player is off the screen by 100 pixels, wrap them around to the
-  // other side
-  if (player->position.x < -WRAP_AROUND_DISTANCE) {
-    player->position.x = BASE_SCREEN_WIDTH + WRAP_AROUND_DISTANCE;
-  }
-  if (player->position.x > BASE_SCREEN_WIDTH + WRAP_AROUND_DISTANCE) {
-    player->position.x = -WRAP_AROUND_DISTANCE;
-  }
-  if (player->position.y < -WRAP_AROUND_DISTANCE) {
-    player->position.y = BASE_SCREEN_HEIGHT + WRAP_AROUND_DISTANCE;
-  }
-  if (player->position.y > BASE_SCREEN_HEIGHT + WRAP_AROUND_DISTANCE) {
-    player->position.y = -WRAP_AROUND_DISTANCE;
-  }
-
   handle_tilemap_collisions(&scene->player, scene->resources->map);
   handle_entity_collisions(&scene->player, &scene->npc);
+
+  // camera should follow the player, but keep a distance of half the screen
+  // width and height
+  scene->resources->mainCamera.position = vec2_subtract(
+      vec2_new(scene->player.position.x, scene->player.position.y),
+      vec2_new(BASE_SCREEN_WIDTH / 2, BASE_SCREEN_HEIGHT / 2));
 
   // create a player trigger w/h pixels in front of the player (based on the dir
   // (most influential direction))

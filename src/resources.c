@@ -93,7 +93,8 @@ void free_tiled_map(Tilemap map) {
                  "Freed map texture");
 }
 
-void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, int debug_collisions) {
+void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, Camera camera,
+                    int debug_collisions) {
   // loop over the map's layers
   cute_tiled_layer_t *layer = map.map->layers;
   while (layer) {
@@ -140,6 +141,10 @@ void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, int debug_collisions) {
       SDL_Rect dest = {(i % layer->width) * tile_width,
                        (i / layer->width) * tile_height, tile_width,
                        tile_height};
+
+      // adjust for camera
+      dest.x -= camera.position.x;
+      dest.y -= camera.position.y;
 
       SDL_RenderCopy(renderer, texture, &src, &dest);
 

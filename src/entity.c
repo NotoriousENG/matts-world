@@ -1,18 +1,22 @@
 #include "entity.h"
 #include "spritel.h"
 
-void entity_draw(SDL_Renderer *renderer, Entity entity, int debug_collisions) {
+void entity_draw(SDL_Renderer *renderer, Entity entity, Camera camera,
+                 int debug_collisions) {
   if (entity.visible) {
     drawTexture(renderer, entity.sprite.texture,
                 &entity.sprite.animations[entity.animator.animation]
                      .frames[entity.animator.currentFrame],
-                entity.position.x, entity.position.y, entity.rotation,
+                entity.position.x - camera.position.x,
+                entity.position.y - camera.position.y, entity.rotation,
                 entity.scale);
   }
 
   if (debug_collisions) {
     // draw the collider as a red box over the texture
     SDL_Rect collisionRect = entity_get_collision_rect(entity);
+    collisionRect.x -= camera.position.x;
+    collisionRect.y -= camera.position.y;
     // set the color to red for SOLID, else BLUE
     if (entity.collider.type == SOLID) {
       SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);

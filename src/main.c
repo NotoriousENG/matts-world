@@ -20,7 +20,7 @@ static Resources resources;
 static Scene scene;
 static float currentTime = 0;
 static float delta = 0;
-static color_rgb clear_color = {125, 255, 134};
+static color_rgb clear_color = {0, 0, 0};
 
 void cleanup() {
 
@@ -45,6 +45,9 @@ void main_loop() {
   float lastTime = SDL_GetTicks() / 1000.0f;
   float delta = lastTime - currentTime;
   currentTime = lastTime;
+
+  SDL_SetRenderDrawColor(renderer, clear_color.r, clear_color.g, clear_color.b,
+                         255);
 
   SDL_RenderClear(renderer);
 
@@ -116,9 +119,6 @@ int main(int argc, char *argv[]) {
   scene_begin(&scene);
 
   resources.running = 1;
-
-  SDL_SetRenderDrawColor(renderer, clear_color.r, clear_color.g, clear_color.b,
-                         255);
 
   // scale all rendering
   SDL_RenderSetScale(renderer, RENDER_SCALE, RENDER_SCALE);
