@@ -64,7 +64,10 @@ int main(int argc, char *argv[]) {
 
   int rendererFlags, windowFlags;
 
-  rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+  // rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+  // prevent screen tear
+  rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC |
+                  SDL_RENDERER_TARGETTEXTURE;
 
   windowFlags = 0;
 

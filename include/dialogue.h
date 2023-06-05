@@ -29,3 +29,5 @@ void dialogueManager_draw(SDL_Renderer *renderer,
 
 void dialogueManager_logic(DialogueManager *dialogueManager, float delta,
                            KeyState *keyboard);
+
+void dialogue_free(Dialogue *dialogue);

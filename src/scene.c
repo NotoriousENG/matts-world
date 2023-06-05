@@ -1,23 +1,29 @@
+#include <string.h>
 #include "scene.h"
 #include "defs.h"
+
+#ifdef _WIN32
+    #define strdup _strdup
+#endif
 
 Scene scene_new(Resources *resources) {
   Scene scene;
   memset(&scene, 0, sizeof(Scene));
   scene.resources = resources;
-  scene.joeyDialogue = (Dialogue){
-      .dialogueLength = 3,
-      .dialogue = malloc(sizeof(char *) * scene.joeyDialogue.dialogueLength),
-  };
-  scene.joeyDialogue.dialogue[0] = "Hello, mamafackas!";
-  scene.joeyDialogue.dialogue[1] =
-      "Now it is time to tell you that Revali has died!";
-  scene.joeyDialogue.dialogue[2] = "We are back in the past defeating Ganon";
+  scene.joeyDialogue.dialogueLength = 3;
+  scene.joeyDialogue.dialogue = malloc(sizeof(char *) * scene.joeyDialogue.dialogueLength);
+
+  scene.joeyDialogue.dialogue[0] = strdup("Hello, mamafackas!");
+  scene.joeyDialogue.dialogue[1] = strdup("Now it is time to tell you that Revali has died!");
+  scene.joeyDialogue.dialogue[2] = strdup("We are back in the past defeating Ganon");
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "Allocated %i lines of dialogue", scene.joeyDialogue.dialogueLength);
+
 
   return scene;
 }
 
-void scene_free(Scene *scene) { free(scene->joeyDialogue.dialogue); }
+void scene_free(Scene *scene) { dialogue_free(&scene->joeyDialogue); }
 
 void scene_begin(Scene *scene) {
   // Create Player

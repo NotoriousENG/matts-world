@@ -7,7 +7,7 @@
 Resources load_resources(SDL_Renderer *renderer) {
   Resources resources;
   memset(&resources, 0, sizeof(Resources));
-  resources.font = loadFont("assets/Pokemon.ttf", 32);
+  resources.font = loadFont("assets/Pokemon.ttf", FONT_SIZE);
   resources.joey = buildJoeySheet(loadTexture(renderer, "assets/joey.png"));
   resources.map =
       load_tiled_map(renderer, &resources, "assets/tiles/test_map.tmj");

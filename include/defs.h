@@ -14,6 +14,8 @@
 
 #define WRAP_AROUND_DISTANCE 50
 
+#define FONT_SIZE 16
+
 #ifndef GAME_NAME
 #define GAME_NAME "Add Game Name to CMakeLists.txt"
 #endif

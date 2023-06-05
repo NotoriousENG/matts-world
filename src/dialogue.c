@@ -45,7 +45,7 @@ void dialogueManager_draw(SDL_Renderer *renderer,
     drawText(renderer,
              dialogueManager->currentDialogue
                  .dialogue[dialogueManager->currentDialogueIndex],
-             16, 0, font);
+             FONT_SIZE, 0, font);
   }
 }
 
@@ -60,4 +60,15 @@ void dialogueManager_logic(DialogueManager *dialogueManager, float delta,
                    dialogueManager->currentDialogue
                        .dialogue[dialogueManager->currentDialogueIndex]);
   }
+}
+
+void dialogue_free(Dialogue *dialogue) {
+  for (int i = 0; i < dialogue->dialogueLength; i++) {
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                   "Freeing dialogue line %i", i);
+    free(dialogue->dialogue[i]);
+  }
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "Freeing dialogue");
+  free(dialogue->dialogue);
 }

@@ -75,7 +75,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_TTF_LIBRARIES})
 
 if (WIN32)
     # /ENTRY:mainCRTStartup keeps the same "main" function instead of requiring "WinMain"
-    set(SUBSYSTEM_LINKER_OPTIONS "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
+    # if release
+    if (CMAKE_BUILD_TYPE MATCHES Release)
+        set(SUBSYSTEM_LINKER_OPTIONS "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup" "/LTCG")
+    endif()
     target_link_options(${PROJECT_NAME} PRIVATE ${SUBSYSTEM_LINKER_OPTIONS})
 endif()
 
@@ -84,7 +87,10 @@ add_custom_target(copy_intermediate_assets
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.tmj ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.png ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
 )
-add_dependencies(${PROJECT_NAME} copy_intermediate_assets)
+# run after build
+if (NOT WIN32)
+    add_dependencies(${PROJECT_NAME} copy_intermediate_assets) #fails on windows because the files are locked
+endif()
 
 add_custom_target(copy_assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets

@@ -1,9 +1,9 @@
 #include "spritel.h"
 #include <time.h>
-#include <unistd.h>
 
 #ifdef WIN32
 #include <windows.h>
+#define stat _stat
 #else
 #include <sys/stat.h>
 #endif
@@ -45,21 +45,12 @@ Animator animator_new() {
 }
 
 time_t GetFileModificationTime(const char *filename) {
-#ifdef WIN32
-  struct _stat attrib;
-  int result = _stat(filename, &attrib);
-  if (result == 0) {
-    return attrib.st_mtime;
-  }
-  return -1;
-#else
   struct stat attrib;
   int result = stat(filename, &attrib);
   if (result == 0) {
     return attrib.st_mtime;
   }
   return -1;
-#endif
 }
 
 void animator_process(Animator *animator, SpriteSheet sprite, float delta,
