@@ -55,3 +55,6 @@ void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, Camera camera,
                     int debug_collisions);
 
 void handle_tilemap_collisions(Entity *entity, Tilemap map);
+
+void set_position_from_tilemap(vec2 *position, char *objectType, Tilemap map,
+                               vec2 offset);

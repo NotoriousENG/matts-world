@@ -110,16 +110,11 @@ void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, Camera camera,
 
       // get the tileset
       cute_tiled_tileset_t *tileset = map.map->tilesets;
-      if (tileset == NULL) {
-        continue;
-      }
-
       // get the tileset image
       SDL_Texture *texture = map.texture;
-      if (texture == NULL) {
+      if (tileset == NULL || texture == NULL) {
         continue;
       }
-
       // get the fields needed to draw the tile
       int tile_width = tileset->tilewidth;
       int tile_height = tileset->tileheight;
@@ -162,7 +157,24 @@ void draw_tiled_map(SDL_Renderer *renderer, Tilemap map, Camera camera,
         }
       }
     }
+    if (debug_collisions) {
+      // get objects
+      cute_tiled_object_t *objects = layer->objects;
+      while (objects) {
+        // draw the object
+        SDL_Rect dest = {objects->x, objects->y, objects->width,
+                         objects->height};
 
+        // adjust for camera
+        dest.x -= camera.position.x;
+        dest.y -= camera.position.y;
+
+        SDL_SetRenderDrawColor(renderer, 128, 128, 128, 128);
+        SDL_RenderFillRect(renderer, &dest);
+
+        objects = objects->next;
+      }
+    }
     layer = layer->next;
   }
 }
@@ -259,6 +271,30 @@ void handle_tilemap_collisions(Entity *entity, Tilemap map) {
           tiles = tiles->next;
         }
       }
+    }
+
+    layer = layer->next;
+  }
+}
+
+void set_position_from_tilemap(vec2 *position, char *objectType, Tilemap map,
+                               vec2 offset) {
+  // loop over the map's layers
+  cute_tiled_layer_t *layer = map.map->layers;
+  while (layer) {
+    int *data = layer->data;
+    int data_count = layer->data_count;
+
+    // get objects
+    cute_tiled_object_t *objects = layer->objects;
+    while (objects) {
+      if (strcmp(objects->type.ptr, objectType) == 0) {
+        position->x = objects->x - offset.x;
+        position->y = objects->y - offset.y;
+        return;
+      }
+
+      objects = objects->next;
     }
 
     layer = layer->next;

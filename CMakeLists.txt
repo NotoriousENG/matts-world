@@ -9,6 +9,9 @@ message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
+# print the current cmake build environment
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     add_compile_definitions("EMSCRIPTEN")
     set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 --preload-file assets --use-preload-plugins")
@@ -80,22 +83,31 @@ if (WIN32)
         set(SUBSYSTEM_LINKER_OPTIONS "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup" "/LTCG")
     endif()
     target_link_options(${PROJECT_NAME} PRIVATE ${SUBSYSTEM_LINKER_OPTIONS})
-endif()
 
-add_custom_target(copy_intermediate_assets
-    # copy all *.tmj and *.png files from list dir's intermediate/tiled to the list dir's assets/tiles, do not copy anything else
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.tmj ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.png ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
-)
-# run after build
-if (NOT WIN32)
+    add_custom_target(copy_intermediate_assets
+        # copy tiled directory from list dir's intermediate/tiled to the list dir's assets/tiles
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
+    )
     add_dependencies(${PROJECT_NAME} copy_intermediate_assets) #fails on windows because the files are locked
-endif()
 
-add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
-)
-add_dependencies(${PROJECT_NAME} copy_assets)
+    # windows cmake puts into the build type dir
+    add_custom_target(copy_assets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/assets
+    )
+    add_dependencies(${PROJECT_NAME} copy_assets)
+else()
+    add_custom_target(copy_intermediate_assets
+        # copy all *.tmj and *.png files from list dir's intermediate/tiled to the list dir's assets/tiles, do not copy anything else
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.tmj ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/intermediate/tiled/*.png ${CMAKE_CURRENT_LIST_DIR}/assets/tiles
+    )
+    add_dependencies(${PROJECT_NAME} copy_intermediate_assets) #fails on windows because the files are locked
+
+    add_custom_target(copy_assets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+    )
+    add_dependencies(${PROJECT_NAME} copy_assets)
+endif()
 
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     add_custom_target(copy_html

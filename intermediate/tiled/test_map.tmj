@@ -22,9 +22,42 @@
          "width":10,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":2,
+         "name":"Object Layer 1",
+         "objects":[
+                {
+                 "height":32,
+                 "id":2,
+                 "name":"Player",
+                 "rotation":0,
+                 "type":"Player",
+                 "visible":true,
+                 "width":32,
+                 "x":160,
+                 "y":256
+                }, 
+                {
+                 "height":32,
+                 "id":3,
+                 "name":"Joey",
+                 "rotation":0,
+                 "type":"NPC",
+                 "visible":true,
+                 "width":32,
+                 "x":160,
+                 "y":192
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":2,
- "nextobjectid":1,
+ "nextlayerid":4,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",

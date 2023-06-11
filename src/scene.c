@@ -1,9 +1,9 @@
-#include <string.h>
 #include "scene.h"
 #include "defs.h"
+#include <string.h>
 
 #ifdef _WIN32
-    #define strdup _strdup
+#define strdup _strdup
 #endif
 
 Scene scene_new(Resources *resources) {
@@ -11,14 +11,17 @@ Scene scene_new(Resources *resources) {
   memset(&scene, 0, sizeof(Scene));
   scene.resources = resources;
   scene.joeyDialogue.dialogueLength = 3;
-  scene.joeyDialogue.dialogue = malloc(sizeof(char *) * scene.joeyDialogue.dialogueLength);
+  scene.joeyDialogue.dialogue =
+      malloc(sizeof(char *) * scene.joeyDialogue.dialogueLength);
 
   scene.joeyDialogue.dialogue[0] = strdup("Hello, mamafackas!");
-  scene.joeyDialogue.dialogue[1] = strdup("Now it is time to tell you that Revali has died!");
-  scene.joeyDialogue.dialogue[2] = strdup("We are back in the past defeating Ganon");
+  scene.joeyDialogue.dialogue[1] =
+      strdup("Now it is time to tell you that Revali has died!");
+  scene.joeyDialogue.dialogue[2] =
+      strdup("We are back in the past defeating Ganon");
   SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
-                 "Allocated %i lines of dialogue", scene.joeyDialogue.dialogueLength);
-
+                 "Allocated %i lines of dialogue",
+                 scene.joeyDialogue.dialogueLength);
 
   return scene;
 }
@@ -37,6 +40,9 @@ void scene_begin(Scene *scene) {
   scene->playerSpeed = PLAYER_SPEED;
   scene->player.collider = collider_new(SOLID, 32, 32, 0, 16);
 
+  set_position_from_tilemap(&scene->player.position, "Player",
+                            scene->resources->map, vec2_new(0, 16));
+
   // Create NPC
   scene->npc.position =
       vec2_new(BASE_SCREEN_WIDTH * 0.5f, BASE_SCREEN_HEIGHT * 0.6f);
@@ -46,6 +52,9 @@ void scene_begin(Scene *scene) {
   scene->npc.scale = 1;
   scene->npc.visible = 1;
   scene->npc.collider = collider_new(SOLID, 32, 32, 0, 16);
+
+  set_position_from_tilemap(&scene->npc.position, "NPC", scene->resources->map,
+                            vec2_new(0, 16));
 
   scene->dialogueManager = dialogueManager_set_dialogue(scene->joeyDialogue);
 }
