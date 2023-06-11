@@ -37,6 +37,7 @@
         "test_map.tmj"
     ],
     "project": "hello.tiled-project",
+    "property.type": "int",
     "recentFiles": [
         "test_map.tmj",
         "tmw_desert_spacing.tsx"

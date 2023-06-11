@@ -291,6 +291,27 @@ void set_position_from_tilemap(vec2 *position, char *objectType, Tilemap map,
       if (strcmp(objects->type.ptr, objectType) == 0) {
         position->x = objects->x - offset.x;
         position->y = objects->y - offset.y;
+
+        // print all custom properties
+        for (int i = 0; i < objects->property_count; i++) {
+          cute_tiled_property_t property = objects->properties[i];
+          SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                         "Property: %s", property.name.ptr);
+          // change behaviour based on property type, for now just handle these
+          if (property.type == CUTE_TILED_PROPERTY_STRING) {
+            SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                           "Value: %s", property.data.string.ptr);
+          } else if (property.type == CUTE_TILED_PROPERTY_INT) {
+            SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                           "Value: %i", property.data.integer);
+          } else if (property.type == CUTE_TILED_PROPERTY_FLOAT) {
+            SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                           "Value: %f", property.data.floating);
+          } else if (property.type == CUTE_TILED_PROPERTY_BOOL) {
+            SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                           "Value: %i", property.data.boolean);
+          }
+        }
         return;
       }
 
