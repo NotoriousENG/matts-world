@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 
   atexit(cleanup);
 
-  scene = scene_new(&resources);
+  scene = scene_new(&resources, renderer);
   scene_begin(&scene);
 
   resources.running = 1;

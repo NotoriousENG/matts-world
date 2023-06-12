@@ -33,9 +33,10 @@ add_subdirectory(lib/sinput)
 add_subdirectory(lib/spritel)
 add_subdirectory(lib/cute)
 add_subdirectory(lib/oof)
+add_subdirectory(lib/flecs)
 
 # Add source to this project's executable.
-add_executable (${PROJECT_NAME} "src/main.c" "src/scene.c" "src/resources.c" "src/entity.c" "src/metadata.c" "src/dialogue.c")
+add_executable (${PROJECT_NAME} "src/main.c" "src/scene.c" "src/resources.c" "src/entity.c" "src/metadata.c" "src/dialogue.c" "src/components.c")
 
 # if this is a release build #define DEBUG_COLLISIONS 1
 if (NOT CMAKE_BUILD_TYPE MATCHES Release) # append AND false to disable in debug
@@ -64,6 +65,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE cute)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/oof/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE oof)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/flecs/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 
 # project includes
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/include")

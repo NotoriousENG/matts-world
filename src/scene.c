@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "components.h"
 #include "defs.h"
 #include <string.h>
 
@@ -6,9 +7,39 @@
 #define strdup _strdup
 #endif
 
-Scene scene_new(Resources *resources) {
+Scene scene_new(Resources *resources, SDL_Renderer *renderer) {
   Scene scene;
   memset(&scene, 0, sizeof(Scene));
+
+  scene.world = ecs_init();
+  ECS_COMPONENT(scene.world, Transform2D);
+  ECS_COMPONENT(scene.world, RendererRef);
+  ECS_COMPONENT(scene.world, CameraRef);
+  ECS_COMPONENT(scene.world, Velocity2D);
+
+  ecs_singleton_set(scene.world, RendererRef, {renderer});
+  ecs_singleton_set(scene.world, CameraRef, {&resources->mainCamera});
+
+  ECS_SYSTEM(scene.world, draw_ecs, EcsOnUpdate, Transform2D);
+  ECS_SYSTEM(scene.world, move_ecs, EcsOnUpdate, Transform2D, [in] Velocity2D);
+
+  ecs_entity_t e = ecs_entity(scene.world, {.name = "Test"});
+
+  ecs_set(scene.world, e, Transform2D,
+          {
+              // set position to the center of the screen
+              .position =
+                  vec2_new(BASE_SCREEN_WIDTH * 0.5f, BASE_SCREEN_HEIGHT * 0.5f),
+              .rotation = 0,
+              .scale = 1,
+          });
+  ecs_set(scene.world, e, Velocity2D, {1, 0});
+
+  const Transform2D *test_transform = ecs_get(scene.world, e, Transform2D);
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
+                 "Test entity position: %f, %f", test_transform->position.x,
+                 test_transform->position.y);
+
   scene.resources = resources;
   scene.joeyDialogue.dialogueLength = 3;
   scene.joeyDialogue.dialogue =
@@ -26,7 +57,10 @@ Scene scene_new(Resources *resources) {
   return scene;
 }
 
-void scene_free(Scene *scene) { dialogue_free(&scene->joeyDialogue); }
+void scene_free(Scene *scene) {
+  dialogue_free(&scene->joeyDialogue);
+  ecs_fini(scene->world); // destroy the ecs world
+}
 
 void scene_begin(Scene *scene) {
   // Create Player
@@ -78,6 +112,8 @@ void scene_draw(SDL_Renderer *renderer, Scene *scene) {
   }
   dialogueManager_draw(renderer, &scene->dialogueManager,
                        scene->resources->font);
+
+  ecs_progress(scene->world, 1 /* delta_time */);
 }
 
 void scene_logic(Scene *scene, float delta) {
@@ -230,5 +266,35 @@ void playerLogic(Scene *scene, float delta) {
         break;
       }
     }
+  }
+}
+
+void move_ecs(ecs_iter_t *it) {
+  Transform2D *t = ecs_field(it, Transform2D, 1);
+  Velocity2D *v = ecs_field(it, Velocity2D, 2);
+
+  for (int i = 0; i < it->count; i++) {
+    t[i].position =
+        vec2_add(t[i].position,
+                 vec2_scale(v[i].velocity, it->delta_time)); // @TODO remove +1
+  }
+}
+
+void draw_ecs(ecs_iter_t *it) {
+  // Get fields from system query
+  Transform2D *t = ecs_field(it, Transform2D, 1);
+  ECS_COMPONENT(it->world, RendererRef);
+  ECS_COMPONENT(it->world, CameraRef);
+
+  SDL_Renderer *renderer = ecs_singleton_get(it->world, RendererRef)->renderer;
+  Camera *camera = ecs_singleton_get(it->world, CameraRef)->camera;
+
+  // Iterate matched entities
+  for (int i = 0; i < it->count; i++) {
+    // draw the entity (red square 32x32)
+    SDL_Rect rect = (SDL_Rect){t[i].position.x - camera->position.x,
+                               t[i].position.y - camera->position.y, 32, 32};
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 128);
+    SDL_RenderFillRect(renderer, &rect);
   }
 }
