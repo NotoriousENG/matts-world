@@ -25,6 +25,14 @@ typedef struct CameraRef {
   Camera *camera;
 } CameraRef;
 
+typedef struct KeyboardRef {
+  KeyState *keyboard;
+} KeyboardRef;
+
+typedef struct Player {
+  uint8_t id;
+} Player;
+
 Scene scene_new(Resources *resources, SDL_Renderer *renderer);
 
 void scene_begin(Scene *scene);
@@ -40,3 +48,7 @@ void scene_free(Scene *scene);
 void draw_ecs(ecs_iter_t *it);
 
 void move_ecs(ecs_iter_t *it);
+
+void animate_ecs(ecs_iter_t *it);
+
+void player_ecs(ecs_iter_t *it);

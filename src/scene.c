@@ -13,15 +13,26 @@ Scene scene_new(Resources *resources, SDL_Renderer *renderer) {
 
   scene.world = ecs_init();
   ECS_COMPONENT(scene.world, Transform2D);
+  ECS_COMPONENT(scene.world, Velocity2D);
+  ECS_COMPONENT(scene.world, SpriteSheet);
+  ECS_COMPONENT(scene.world, Animator);
+  ECS_COMPONENT(scene.world, Player);
+
   ECS_COMPONENT(scene.world, RendererRef);
   ECS_COMPONENT(scene.world, CameraRef);
-  ECS_COMPONENT(scene.world, Velocity2D);
+  ECS_COMPONENT(scene.world, KeyboardRef);
 
   ecs_singleton_set(scene.world, RendererRef, {renderer});
   ecs_singleton_set(scene.world, CameraRef, {&resources->mainCamera});
+  ecs_singleton_set(scene.world, KeyboardRef, {resources->keyboard});
 
-  ECS_SYSTEM(scene.world, draw_ecs, EcsOnUpdate, Transform2D);
-  ECS_SYSTEM(scene.world, move_ecs, EcsOnUpdate, Transform2D, [in] Velocity2D);
+  ECS_SYSTEM(scene.world, draw_ecs,
+             EcsOnUpdate, [in] Transform2D, [in] SpriteSheet, [in] Animator);
+  ECS_SYSTEM(scene.world, move_ecs,
+             EcsOnUpdate, [in] Transform2D, [in] Velocity2D);
+  ECS_SYSTEM(scene.world, animate_ecs, EcsOnUpdate, Animator, [in] SpriteSheet);
+  ECS_SYSTEM(scene.world, player_ecs, EcsOnUpdate, [in] Player, Velocity2D,
+             Animator);
 
   ecs_entity_t e = ecs_entity(scene.world, {.name = "Test"});
 
@@ -33,12 +44,12 @@ Scene scene_new(Resources *resources, SDL_Renderer *renderer) {
               .rotation = 0,
               .scale = 1,
           });
+  ecs_set(scene.world, e, Player, {0});
   ecs_set(scene.world, e, Velocity2D, {1, 0});
-
-  const Transform2D *test_transform = ecs_get(scene.world, e, Transform2D);
-  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO,
-                 "Test entity position: %f, %f", test_transform->position.x,
-                 test_transform->position.y);
+  ecs_set_id(scene.world, e, ecs_id(SpriteSheet), sizeof(SpriteSheet),
+             &resources->joey);
+  Animator animator = animator_new();
+  ecs_set_id(scene.world, e, ecs_id(Animator), sizeof(Animator), &animator);
 
   scene.resources = resources;
   scene.joeyDialogue.dialogueLength = 3;
@@ -274,15 +285,18 @@ void move_ecs(ecs_iter_t *it) {
   Velocity2D *v = ecs_field(it, Velocity2D, 2);
 
   for (int i = 0; i < it->count; i++) {
-    t[i].position =
-        vec2_add(t[i].position,
-                 vec2_scale(v[i].velocity, it->delta_time)); // @TODO remove +1
+    t[i].position = vec2_add(
+        t[i].position,
+        vec2_scale(v[i].velocity, it->delta_time / 100)); // @TODO remove +1
   }
 }
 
 void draw_ecs(ecs_iter_t *it) {
   // Get fields from system query
   Transform2D *t = ecs_field(it, Transform2D, 1);
+  SpriteSheet *s = ecs_field(it, SpriteSheet, 2);
+  Animator *a = ecs_field(it, Animator, 3);
+
   ECS_COMPONENT(it->world, RendererRef);
   ECS_COMPONENT(it->world, CameraRef);
 
@@ -291,10 +305,64 @@ void draw_ecs(ecs_iter_t *it) {
 
   // Iterate matched entities
   for (int i = 0; i < it->count; i++) {
-    // draw the entity (red square 32x32)
-    SDL_Rect rect = (SDL_Rect){t[i].position.x - camera->position.x,
-                               t[i].position.y - camera->position.y, 32, 32};
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 128);
-    SDL_RenderFillRect(renderer, &rect);
+    drawTexture(renderer, s[i].texture,
+                &s[i].animations[a->animation].frames[a->currentFrame],
+                t[i].position.x - camera->position.x,
+                t[i].position.y - camera->position.y, t[i].rotation,
+                t[i].scale);
+  }
+}
+
+void animate_ecs(ecs_iter_t *it) {
+  Animator *a = ecs_field(it, Animator, 1);
+  SpriteSheet *s = ecs_field(it, SpriteSheet, 2);
+
+  for (int i = 0; i < it->count; i++) {
+    animator_process(&a[i], s[i], it->delta_time / 100, false);
+  }
+}
+
+void player_ecs(ecs_iter_t *it) {
+
+  // Get fields from system query
+  Player *p = ecs_field(it, Player, 1);
+  Velocity2D *v = ecs_field(it, Velocity2D, 2);
+  Animator *a = ecs_field(it, Animator, 3);
+
+  ECS_COMPONENT(it->world, KeyboardRef);
+  KeyState *k = ecs_singleton_get(it->world, KeyboardRef)->keyboard;
+
+  vec2 inputDir = (vec2){0, 0};
+  inputDir.x = (k[SDL_SCANCODE_RIGHT] || k[SDL_SCANCODE_D]) -
+               (k[SDL_SCANCODE_LEFT] || k[SDL_SCANCODE_A]);
+  inputDir.y = (k[SDL_SCANCODE_DOWN] || k[SDL_SCANCODE_S]) -
+               (k[SDL_SCANCODE_UP] || k[SDL_SCANCODE_W]);
+
+  // clamp the input x and y to -1 and 1
+  inputDir.x = clampf(inputDir.x, -1, 1);
+  inputDir.y = clampf(inputDir.y, -1, 1);
+
+  for (int i = 0; i < it->count; i++) {
+
+    int dir = a[i].animation;
+    if (inputDir.y > 0) {
+      dir = 0;
+    } else if (inputDir.y < 0) {
+      dir = 3;
+    } else if (inputDir.x < 0) {
+      dir = 1;
+    } else if (inputDir.x > 0) {
+      dir = 2;
+    }
+    // set the animation
+    a[i].animation = dir;
+
+    int isMoving = vec2_length(inputDir) > 0;
+
+    if (isMoving) {
+      inputDir = vec2_normalize(inputDir);
+    }
+    // set the velocity to the input dir
+    v[i].velocity = vec2_scale(inputDir, PLAYER_SPEED);
   }
 }
